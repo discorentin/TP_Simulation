@@ -15,8 +15,9 @@ class SimulationMaintenanceBus:
     ACCES_REPARATION = 'acces_reparation'
     DEPART_REPARATION = 'depart_reparation'
 
-    def __init__(self):
+    def __init__(self, duree):
         self.date_simu = 0
+        self.duree_simu = duree
 
         self.nb_bus = 0
         self.nb_bus_rep = 0
@@ -71,7 +72,7 @@ class SimulationMaintenanceBus:
 
     def debut_simulation(self):
         self.echeancier.append((self.ARRIVEE_BUS, self.date_simu + self.rng.exponential(0.5)))
-        self.echeancier.append((self.FIN_SIMULATION, 160))
+        self.echeancier.append((self.FIN_SIMULATION, self.duree_simu))
 
     def fin_simulation(self):
         self.echeancier.clear()
@@ -81,7 +82,7 @@ class SimulationMaintenanceBus:
 
         print("Temps d'attente moyen avant contrôle : " + str(temps_attente_moyen_avant_controle))
         print("Temps d'attente moyen avant réparation : " + str(temps_attente_moyen_avant_reparation))
-        print("Taux d'utilisation du centre de réparation : " + str(taux_utilisation_centre_reparation))
+        print("Taux d'utilisation du centre de réparation : " + str(taux_utilisation_centre_reparation) + "\n")
 
     def arrivee_bus(self):
         self.echeancier.append((self.ARRIVEE_BUS, self.date_simu + self.rng.exponential(0.5)))
@@ -122,5 +123,9 @@ class SimulationMaintenanceBus:
             self.echeancier.append((self.ACCES_REPARATION, self.date_simu))
 
 
-simulation = SimulationMaintenanceBus()
+simulation = SimulationMaintenanceBus(80)
+simulation.simulateur()
+simulation = SimulationMaintenanceBus(160)
+simulation.simulateur()
+simulation = SimulationMaintenanceBus(240)
 simulation.simulateur()
