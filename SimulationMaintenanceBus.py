@@ -87,19 +87,18 @@ class SimulationMaintenanceBus:
         print("Temps d'attente moyen avant réparation : " + str(self.temps_attente_moyen_avant_reparation))
         print("Taux d'utilisation du centre de réparation : " + str(self.taux_utilisation_centre_reparation) + "\n")
 
-
     def debut_simulation(self):
-        self.echeancier.append((self.ARRIVEE_BUS, self.date_simu + self.rng.exponential(0.5)))
+        self.echeancier.append((self.ARRIVEE_BUS, self.date_simu + self.rng.exponential(2)))
         self.echeancier.append((self.FIN_SIMULATION, self.duree_simu))
 
     def fin_simulation(self):
         self.echeancier.clear()
         self.temps_attente_moyen_avant_controle += self.aire_qc / self.nb_bus
         self.temps_attente_moyen_avant_reparation += self.aire_qr / self.nb_bus_rep
-        self.taux_utilisation_centre_reparation += self.aire_br / (2 * 160)
+        self.taux_utilisation_centre_reparation += self.aire_br / (2 * self.duree_simu)
 
     def arrivee_bus(self):
-        self.echeancier.append((self.ARRIVEE_BUS, self.date_simu + self.rng.exponential(0.5)))
+        self.echeancier.append((self.ARRIVEE_BUS, self.date_simu + self.rng.exponential(2)))
         self.nb_bus += 1
         self.echeancier.append((self.ARRIVEE_FILE_C, self.date_simu))
 
@@ -111,7 +110,7 @@ class SimulationMaintenanceBus:
     def acces_controle(self):
         self.qc -= 1
         self.bc = 1
-        self.echeancier.append((self.DEPART_CONTROLE, self.date_simu + self.rng.uniform(1 / 4, 13 / 12)))
+        self.echeancier.append((self.DEPART_CONTROLE, self.date_simu + self.rng.uniform(0.25, 13 / 12)))
 
     def depart_controle(self):
         self.bc = 0
