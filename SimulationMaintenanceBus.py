@@ -15,9 +15,8 @@ class SimulationMaintenanceBus:
     ACCES_REPARATION = 'acces_reparation'
     DEPART_REPARATION = 'depart_reparation'
 
-    def __init__(self, duree):
+    def __init__(self):
         self.date_simu = 0
-        self.duree_simu = duree
 
         self.nb_bus = 0
         self.nb_bus_rep = 0
@@ -30,6 +29,12 @@ class SimulationMaintenanceBus:
         self.qr = 0
         self.bc = 0
         self.br = 0
+
+        self.temps_attente_moyen_avant_controle = 0
+        self.temps_attente_moyen_avant_reparation = 0
+        self.taux_utilisation_centre_reparation = 0
+
+        self.duree_simu = 0
 
         self.echeancier = []
 
@@ -58,17 +63,30 @@ class SimulationMaintenanceBus:
         self.aire_qr += (d2 - d1) * self.qr
         self.aire_br += (d2 - d1) * self.br
 
-    def simulateur(self):
-        self.echeancier.append((self.DEBUT_SIMULATION, self.date_simu))
+    def simulateur(self, duree, nb_replications):
+        self.duree_simu = duree
 
-        while self.echeancier:
-            self.echeancier = sorted(self.echeancier, key=itemgetter(1))
-            # print(self.echeancier)
+        for i in range(nb_replications):
+            self.echeancier.append((self.DEBUT_SIMULATION, self.date_simu))
 
-            evt, date = self.echeancier.pop(0)
-            self.maj_aires(self.date_simu, date)
-            self.date_simu = date
-            self.executer_evenement(evt)
+            while self.echeancier:
+                self.echeancier = sorted(self.echeancier, key=itemgetter(1))
+
+                evt, date = self.echeancier.pop(0)
+                self.maj_aires(self.date_simu, date)
+                self.date_simu = date
+                self.executer_evenement(evt)
+
+        self.temps_attente_moyen_avant_controle /= nb_replications
+        self.temps_attente_moyen_avant_reparation /= nb_replications
+        self.taux_utilisation_centre_reparation /= nb_replications
+
+        print("Pour une durée de simulation de " + str(self.duree_simu) + ", sur " + str(nb_replications)
+              + " réplications :")
+        print("Temps d'attente moyen avant contrôle : " + str(self.temps_attente_moyen_avant_controle))
+        print("Temps d'attente moyen avant réparation : " + str(self.temps_attente_moyen_avant_reparation))
+        print("Taux d'utilisation du centre de réparation : " + str(self.taux_utilisation_centre_reparation) + "\n")
+
 
     def debut_simulation(self):
         self.echeancier.append((self.ARRIVEE_BUS, self.date_simu + self.rng.exponential(0.5)))
@@ -76,13 +94,9 @@ class SimulationMaintenanceBus:
 
     def fin_simulation(self):
         self.echeancier.clear()
-        temps_attente_moyen_avant_controle = self.aire_qc / self.nb_bus
-        temps_attente_moyen_avant_reparation = self.aire_qr / self.nb_bus_rep
-        taux_utilisation_centre_reparation = self.aire_br / (2 * 160)
-
-        print("Temps d'attente moyen avant contrôle : " + str(temps_attente_moyen_avant_controle))
-        print("Temps d'attente moyen avant réparation : " + str(temps_attente_moyen_avant_reparation))
-        print("Taux d'utilisation du centre de réparation : " + str(taux_utilisation_centre_reparation) + "\n")
+        self.temps_attente_moyen_avant_controle += self.aire_qc / self.nb_bus
+        self.temps_attente_moyen_avant_reparation += self.aire_qr / self.nb_bus_rep
+        self.taux_utilisation_centre_reparation += self.aire_br / (2 * 160)
 
     def arrivee_bus(self):
         self.echeancier.append((self.ARRIVEE_BUS, self.date_simu + self.rng.exponential(0.5)))
@@ -97,7 +111,7 @@ class SimulationMaintenanceBus:
     def acces_controle(self):
         self.qc -= 1
         self.bc = 1
-        self.echeancier.append((self.DEPART_CONTROLE, self.date_simu + self.rng.uniform(0.25, 13 / 12)))
+        self.echeancier.append((self.DEPART_CONTROLE, self.date_simu + self.rng.uniform(1 / 4, 13 / 12)))
 
     def depart_controle(self):
         self.bc = 0
@@ -123,9 +137,9 @@ class SimulationMaintenanceBus:
             self.echeancier.append((self.ACCES_REPARATION, self.date_simu))
 
 
-simulation = SimulationMaintenanceBus(80)
-simulation.simulateur()
-simulation = SimulationMaintenanceBus(160)
-simulation.simulateur()
-simulation = SimulationMaintenanceBus(240)
-simulation.simulateur()
+simulation = SimulationMaintenanceBus()
+simulation.simulateur(40, 500)
+simulation = SimulationMaintenanceBus()
+simulation.simulateur(160, 500)
+simulation = SimulationMaintenanceBus()
+simulation.simulateur(240, 500)
