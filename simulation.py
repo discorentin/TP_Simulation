@@ -152,5 +152,6 @@ def calcul_res(duree, nb_réplications):
 
 
 calcul_res(40,500)
+calcul_res(80,500)
 calcul_res(160,500)
 calcul_res(240,500)
