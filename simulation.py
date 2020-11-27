@@ -127,31 +127,30 @@ class SimulationMaintenanceBus:
             self.echeancier.append((self.ACCES_REPARATION, self.date_simu))
 
 
-tc = 0
-tr = 0
-fc = 0
-fr = 0
-taux = 0
+def calcul_res(duree, nb_réplications):
+    tc = 0
+    tr = 0
+    fc = 0
+    fr = 0
+    taux = 0
 
-duree = 160
-for i in range(0,500):
-    simulation = SimulationMaintenanceBus(duree)
-    simulation.simulateur()
-    res = simulation.fin_simulation()
-    tc = tc + res[0]
-    tr = tr + res[1]
-    fc = fc + res[2]
-    fr = fr + res[3]
-    taux = taux + res[4]
-print("------------------------" + str(duree)  + "heures------------------------")
-print("Temps d'attente moyen avant contrôle : " + str(tc/500))
-print("Temps d'attente moyen avant réparation : " + str(tr/500))
-print("Taille Moyenne de file contrôle : " + str(fc/500))
-print("Taille Moyenne de file réparation : " + str(fr/500))
-print("Taux d'utilisation du centre de réparation : " + str(taux/500))
+    for i in range(0,nb_réplications):
+        simulation = SimulationMaintenanceBus(duree)
+        simulation.simulateur()
+        res = simulation.fin_simulation()
+        tc = tc + res[0]
+        tr = tr + res[1]
+        fc = fc + res[2]
+        fr = fr + res[3]
+        taux = taux + res[4]
+    print("------------------------" + str(duree)  + "heures------------------------")
+    print("Temps d'attente moyen avant contrôle : " + str(tc/nb_réplications))
+    print("Temps d'attente moyen avant réparation : " + str(tr/nb_réplications))
+    print("Taille Moyenne de file contrôle : " + str(fc/nb_réplications))
+    print("Taille Moyenne de file réparation : " + str(fr/nb_réplications))
+    print("Taux d'utilisation du centre de réparation : " + str(taux/nb_réplications))
 
 
-#simulation = SimulationMaintenanceBus(160)
-#simulation.simulateur()
-#simulation = SimulationMaintenanceBus(240)
-#simulation.simulateur()
+calcul_res(40,500)
+calcul_res(160,500)
+calcul_res(240,500)
