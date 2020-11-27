@@ -32,6 +32,18 @@ class SimulationMaintenanceBus:
         self.bc = 0
         self.br = 0
 
+        self.time_arr_fc = 0
+        self.time_dep_fc = 0
+        self.time_arr_fr = 0
+        self.time_dep_fr = 0
+        self.temps_attente_controle_max = 0
+        self.temps_attente_reparation_max = 0
+
+        self.tc3 = 0
+        self.tr3 = 0
+        self.nb_bus_pass_fc = 0
+        self.nb_bus_pass_fr = 0
+
         self.echeancier = []
 
         self.rng = default_rng()
@@ -70,6 +82,9 @@ class SimulationMaintenanceBus:
             self.maj_aires(self.date_simu, date)
             self.date_simu = date
             self.executer_evenement(evt)
+        #return (self.temps_attente_controle_max, self.temps_attente_reparation_max)
+        #return (self.tcc/self.nb_bus_pass_fc,self.trr/self.nb_bus_pass_fr)
+        return (self.tc3 / self.nb_bus_pass_fc, self.tr3 / self.nb_bus_pass_fr, self.temps_attente_controle_max, self.temps_attente_reparation_max)
 
     def debut_simulation(self):
         self.echeancier.append((self.ARRIVEE_BUS, self.date_simu + self.rng.exponential(2)))
@@ -94,11 +109,20 @@ class SimulationMaintenanceBus:
         self.echeancier.append((self.ARRIVEE_FILE_C, self.date_simu))
 
     def arrivee_file_c(self):
+        self.time_arr_fc = self.date_simu
+
         self.qc += 1
         if self.bc == 0:
             self.echeancier.append((self.ACCES_CONTROLE, self.date_simu))
 
     def acces_controle(self):
+        self.nb_bus_pass_fc += 1
+        self.time_dep_fc = self.date_simu
+        time_tmp = self.time_dep_fc-self.time_arr_fc
+        if time_tmp > self.temps_attente_controle_max:
+            self.temps_attente_controle_max = time_tmp
+        self.tc3 += time_tmp
+
         self.qc -= 1
         self.bc = 1
         self.echeancier.append((self.DEPART_CONTROLE, self.date_simu + self.rng.uniform(0.25, 13 / 12)))
@@ -111,12 +135,21 @@ class SimulationMaintenanceBus:
             self.echeancier.append((self.ARRIVEE_FILE_R, self.date_simu))
 
     def arrivee_file_r(self):
+        self.time_arr_fr = self.date_simu
+
         self.qr += 1
         self.nb_bus_rep += 1
         if self.br < 2:
             self.echeancier.append((self.ACCES_REPARATION, self.date_simu))
 
     def acces_reparation(self):
+        self.nb_bus_pass_fr += 1
+        self.time_dep_fr = self.date_simu
+        time_tmp = self.time_dep_fr-self.time_arr_fr
+        if time_tmp > self.temps_attente_reparation_max:
+            self.temps_attente_reparation_max = time_tmp
+        self.tr3 += time_tmp
+
         self.qr -= 1
         self.br += 1
         self.echeancier.append((self.DEPART_REPARATION, self.date_simu + self.rng.uniform(2.1, 4.5)))
@@ -127,14 +160,14 @@ class SimulationMaintenanceBus:
             self.echeancier.append((self.ACCES_REPARATION, self.date_simu))
 
 
-def calcul_res(duree, nb_réplications):
+def calcul_res(duree, nb_replications):
     tc = 0
     tr = 0
     fc = 0
     fr = 0
     taux = 0
 
-    for i in range(0,nb_réplications):
+    for i in range(0, nb_replications):
         simulation = SimulationMaintenanceBus(duree)
         simulation.simulateur()
         res = simulation.fin_simulation()
@@ -144,14 +177,55 @@ def calcul_res(duree, nb_réplications):
         fr = fr + res[3]
         taux = taux + res[4]
     print("------------------------" + str(duree)  + "heures------------------------")
-    print("Temps d'attente moyen avant contrôle : " + str(tc/nb_réplications))
-    print("Temps d'attente moyen avant réparation : " + str(tr/nb_réplications))
-    print("Taille Moyenne de file contrôle : " + str(fc/nb_réplications))
-    print("Taille Moyenne de file réparation : " + str(fr/nb_réplications))
-    print("Taux d'utilisation du centre de réparation : " + str(taux/nb_réplications))
+    print("Temps d'attente moyen avant contrôle : " + str(tc / nb_replications))
+    print("Temps d'attente moyen avant réparation : " + str(tr / nb_replications))
+    print("Taille Moyenne de file contrôle : " + str(fc / nb_replications))
+    print("Taille Moyenne de file réparation : " + str(fr / nb_replications))
+    print("Taux d'utilisation du centre de réparation : " + str(taux / nb_replications))
 
 
-calcul_res(40,500)
+def calcul_tc3_tr3(duree,nb_replications):
+    sum_tc3 = 0
+    sum_tr3 = 0
+    for i in range(0, nb_replications):
+        simulation = SimulationMaintenanceBus(duree)
+        res = simulation.simulateur()
+        sum_tc3 += res[0]
+        sum_tr3 += res[1]
+    res1 = sum_tc3 / nb_replications
+    res2 = sum_tr3 / nb_replications
+    print("------------------------" + str(duree) + "heures------------------------")
+    print("Temps d'attente moyen avant contrôle: " + str(res1))
+    print("Temps d'attente moyen avant réparation: " + str(res2))
+
+
+def calcul_max(duree,nb_replications):
+    sum_max_tc = 0
+    sum_max_tr = 0
+    for i in range(0,nb_replications):
+        simulation = SimulationMaintenanceBus(duree)
+        res = simulation.simulateur()
+        sum_max_tc += res[2]
+        sum_max_tr += res[3]
+    res1 = sum_max_tc/nb_replications
+    res2 = sum_max_tr/nb_replications
+    print("------------------------" + str(duree) + "heures------------------------")
+    print("le temps d'attente maximum avant contrôle: " + str(res1))
+    print("le temps d'attente maximum avant réparation: " + str(res2))
+
+
+'''calcul_res(40,500)
 calcul_res(80,500)
 calcul_res(160,500)
-calcul_res(240,500)
+calcul_res(240,500)'''
+
+#calcul_tc3_tr3(40,500)
+calcul_tc3_tr3(80,500)
+calcul_tc3_tr3(160,500)
+calcul_tc3_tr3(240,500)
+
+#calcul_max(40,500)
+calcul_max(80,500)
+calcul_max(160,500)
+calcul_max(240,500)
+
