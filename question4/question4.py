@@ -145,19 +145,16 @@ def obtenirTheoriDureeControle(arrTheri):
 #F(x) = x - a/b - a
     b = 1.083333
     a = 0.25
-    p1 = (0.25-0)/(b - a)
     p2 = (0.5-0.25)/(b - a)
     p3 = (0.75-0.5)/(b - a)
     p4 = (1.0-0.75)/(b - a)
     p5 = (b-1.0)/(b - a)
     
-    n1 = p1*75
     n2 = p2*75
     n3 = p3*75
     n4 = p4*75
     n5 = p5*75
 
-    arrTheri.append(n1)
     arrTheri.append(n2)
     arrTheri.append(n3)
     arrTheri.append(n4)
