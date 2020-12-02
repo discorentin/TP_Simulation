@@ -99,9 +99,12 @@ class SimulationMaintenanceBus:
 
     def fin_simulation(self):
         self.echeancier.clear()
-        self.temps_attente_moyen_avant_controle += self.aire_qc / self.nb_bus
-        self.temps_attente_moyen_avant_reparation += self.aire_qr / self.nb_bus_rep
-        self.taux_utilisation_centre_reparation += self.aire_br / (2 * self.duree_simu)
+        if self.nb_bus != 0:
+            self.temps_attente_moyen_avant_controle += self.aire_qc / self.nb_bus
+        if self.nb_bus_rep != 0:
+            self.temps_attente_moyen_avant_reparation += self.aire_qr / self.nb_bus_rep
+        if self.duree_simu != 0:
+            self.taux_utilisation_centre_reparation += self.aire_br / (2 * self.duree_simu)
 
     def arrivee_bus(self):
         if(self.nb_entre_bus < self.nb_limit_bus):
