@@ -138,10 +138,10 @@ def calcul_res(duree, nb_replications):
         simulation = SimulationMaintenanceBus(duree)
         simulation.simulateur()
         res = simulation.fin_simulation()
-        tc = tc + res[0]
-        tr = tr + res[1]
-        fc = fc + res[2]
-        fr = fr + res[3]
+        tc += res[0]
+        tr += res[1]
+        fc += res[2]
+        fr += res[3]
         taux = taux + res[4]
     print("------------------------" + str(duree)  + "heures------------------------")
     print("Temps d'attente moyen avant contrôle : " + str(tc/nb_replications))
