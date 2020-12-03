@@ -62,15 +62,11 @@ def faire_tri_arriveTemp(donnee,result):
 def faire_tri_dureeControle(donnee,result):
     donnee.sort()
     index = 0
-    O1 = 0
     O2 = 0
     O3 = 0
     O4 = 0
     O5 = 0
     
-    while(donnee[index] >= 0 and donnee[index] < 0.25):
-        O1 = O1 + 1
-        index  = index + 1
 
     while(donnee[index] >= 0.25 and donnee[index] < 0.5):
         O2 = O2 + 1
@@ -87,7 +83,6 @@ def faire_tri_dureeControle(donnee,result):
     for j in range(index, len(donnee)):
         O5 = O5 + 1
         index  = index + 1
-    result.append(O1)
     result.append(O2)
     result.append(O3)
     result.append(O4)
@@ -150,19 +145,16 @@ def obtenirTheoriDureeControle(arrTheri):
 #F(x) = x - a/b - a
     b = 1.083333
     a = 0.25
-    p1 = (0.25-0)/(b - a)
     p2 = (0.5-0.25)/(b - a)
     p3 = (0.75-0.5)/(b - a)
     p4 = (1.0-0.75)/(b - a)
     p5 = (b-1.0)/(b - a)
     
-    n1 = p1*75
     n2 = p2*75
     n3 = p3*75
     n4 = p4*75
     n5 = p5*75
 
-    arrTheri.append(n1)
     arrTheri.append(n2)
     arrTheri.append(n3)
     arrTheri.append(n4)
@@ -200,6 +192,10 @@ obtenirTheoriDureeControle(theoriqueDureeControle)
 faire_tri_dureeControle(donneDureeControle, observeDureeControle)
 result_duree_controle = calculZ(observeDureeControle, theoriqueDureeControle)
 
+print("le nombre de chaque group des effectifs theoriques d'arrive_temp:")
+print(arrTheriArriveControle)
+print("le nombre de chaque group des effectifs theoriques de duree controle:")
+print(theoriqueDureeControle)
 print("Résultat du test du chi carré du arrive de temps:"+str(result_arrive_temp))
 print("Résultat du test du chi carré du duree controle:" + str(result_duree_controle))
 
